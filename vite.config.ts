@@ -1,4 +1,5 @@
 import * as fsp from "node:fs/promises";
+import * as path from "node:path";
 
 import {
   vitePlugin as remix,
@@ -16,9 +17,12 @@ export default defineConfig({
         v3_relativeSplatPath: true,
         v3_throwAbortReason: true,
       },
-      async buildEnd() {
-        // Move the server build to the client directory `_worker.js` for CF Pages deployment.
-        await fsp.rename("build/server/index.js", "build/client/_worker.js");
+      buildEnd: async (args) => {
+        const buildDir = args.remixConfig.buildDirectory;
+        await fsp.rename(
+          path.join(buildDir, "server"),
+          path.join(buildDir, "client/_worker.js")
+        );
       },
     }),
     tsconfigPaths(),
@@ -32,6 +36,16 @@ export default defineConfig({
             build: {
               rollupOptions: {
                 input: "/app/worker.ts",
+              },
+            },
+            ssr: {
+              target: "webworker",
+              noExternal: true,
+              resolve: {
+                mainFields: ["module"],
+                conditions: ["workerd", "module"],
+                externalConditions: ["workerd", "module"],
+                noExternal: true,
               },
             },
           };
