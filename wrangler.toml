@@ -1,0 +1,7 @@
+name = "remix-cf-pages-template"
+pages_build_output_dir = "./build/client"
+compatibility_date = "2024-05-28"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "9758911d410c4e8398cc3862042abde8"
